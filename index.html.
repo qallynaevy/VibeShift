@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeShift — Aesthetic Focus & Expense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0d0f17;
+      --card-bg: rgba(23, 27, 44, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #a855f7;
+      --primary-glow: rgba(168, 85, 247, 0.35);
+      --secondary: #06b6d4;
+      --text-main: #f3f4f6;
+      --text-sub: #9ca3af;
+      --accent-red: #f43f5e;
+      --accent-green: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand h1 span {
+      color: var(--primary);
+    }
+
+    .streak-badge {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 14px;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+
+    .grid {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .timer-display {
+      font-size: 64px;
+      font-weight: 700;
+      text-align: center;
+      margin: 20px 0;
+      letter-spacing: -2px;
+      color: #fff;
+      text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+    }
+
+    .timer-modes {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+      padding: 6px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 14px;
+      border: none;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #9333ea);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    .audio-controls {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .vibe-meme {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--card-border);
+      font-size: 13px;
+      text-align: center;
+      color: var(--secondary);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    input, select {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    input[type="text"] { flex: 2; }
+    input[type="number"] { flex: 1; }
+    select { flex: 1.2; }
+
+    .expense-list {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .chart-container {
+      margin-top: 20px;
+      height: 180px;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">V</div>
+      <h1>Vibe<span>Shift</span></h1>
+    </div>
+    <div class="streak-badge">🔥 <span id="streak">0</span> Day Focus Streak</div>
+  </header>
+
+  <div class="grid">
+    <!-- FOCUS ZONE CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🎧 FocusVibe Timer</div>
+      </div>
+
+      <div class="timer-modes">
+        <button class="mode-btn active" onclick="setTimerMode('focus')">Focus (25m)</button>
+        <button class="mode-btn" onclick="setTimerMode('chill')">Chill (5m)</button>
+        <button class="mode-btn" onclick="setTimerMode('rest')">Rest (15m)</button>
+      </div>
+
+      <div class="timer-display" id="timer">25:00</div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start Vibe</button>
+        <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+      </div>
+
+      <div class="audio-controls">
+        <span style="font-size: 13px; color: var(--text-sub);">🔊 Ambient Cosmic Noise</span>
+        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="toggleAmbientSound()">Toggle Audio</button>
+      </div>
+    </div>
+
+    <!-- EXPENSE TRACKER CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">💸 Micro-Expense Tracker</div>
+      </div>
+
+      <form onsubmit="addExpense(event)">
+        <div class="input-group">
+          <input type="text" id="desc" placeholder="Keterangan (Kopi, Thrift...)" required />
+          <input type="number" id="amount" placeholder="Rp" required />
+        </div>
+        <div class="input-group">
+          <select id="category">
+            <option value="Kopi/Nongkrong">☕ Kopi/Nongkrong</option>
+            <option value="Thrift/Fashion">👕 Thrift/Fashion</option>
+            <option value="Fast Food">🍔 Fast Food</option>
+            <option value="Subscriptions">📱 Netflix/Spotify</option>
+          </select>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Add</button>
+        </div>
+      </form>
+
+      <div class="vibe-meme" id="memeFeedback">✨ Dompet masih bersahabat hari ini.</div>
+
+      <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
+
+      <div class="expense-list" id="expenseList"></div>
+    </div>
+  </div>
+
+  <script>
+    // State Timer
+    let timeLeft = 25 * 60;
+    let timerId = null;
+    let currentMode = 'focus';
+    let streak = parseInt(localStorage.getItem('vibeshift_streak')) || 0;
+
+    // Web Audio Synthesizer (Ambient Noise)
+    let audioCtx = null;
+    let noiseNode = null;
+    let isPlayingAudio = false;
+
+    // State Expenses
+    let expenses = JSON.parse(localStorage.getItem('vibeshift_expenses')) || [];
+
+    document.getElementById('streak').innerText = streak;
+
+    // TIMER FUNCTIONS
+    function updateTimerDisplay() {
+      const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const secs = (timeLeft % 60).toString().padStart(2, '0');
+      document.getElementById('timer').innerText = `${mins}:${secs}`;
+    }
+
+    function setTimerMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (mode === 'focus') timeLeft = 25 * 60;
+      if (mode === 'chill') timeLeft = 5 * 60;
+      if (mode === 'rest') timeLeft = 15 * 60;
+
+      clearInterval(timerId);
+      timerId = null;
+      document.getElementById('startBtn').innerText = 'Start Vibe';
+      updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+        document.getElementById('startBtn').innerText = 'Start Vibe';
+      } else {
+        document.getElementById('startBtn').innerText = 'Pause';
+        timerId = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerId);
+            timerId = null;
+            if (currentMode === 'focus') {
+              streak++;
+              localStorage.setItem('vibeshift_streak', streak);
+              document.getElementById('streak').innerText = streak;
+              alert('🎉 Focus Session Selesai! Saatnya Chill.');
+            }
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerId);
+      timerId = null;
+      document.getElementById('startBtn').innerText = 'Start Vibe';
+      setTimerMode(currentMode);
+    }
+
+    // AUDIO GENERATOR
+    function toggleAmbientSound() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      if (isPlayingAudio) {
+        if (noiseNode) noiseNode.disconnect();
+        isPlayingAudio = false;
+      } else {
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        noiseNode.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+
+        noiseNode.connect(filter);
+        filter.connect(audioCtx.destination);
+        noiseNode.start();
+        isPlayingAudio = true;
+      }
+    }
+
+    // EXPENSE FUNCTIONS
+    function addExpense(e) {
+      e.preventDefault();
+      const desc = document.getElementById('desc').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const category = document.getElementById('category').value;
+
+      if (!desc || !amount) return;
+
+      expenses.push({ desc, amount, category, date: new Date().toLocaleDateString() });
+      localStorage.setItem('vibeshift_expenses', JSON.stringify(expenses));
+
+      document.getElementById('desc').value = '';
+      document.getElementById('amount').value = '';
+
+      renderExpenses();
+    }
+
+    function renderExpenses() {
+      const list = document.getElementById('expenseList');
+      list.innerHTML = '';
+      
+      let total = 0;
+      const categoryTotals = {};
+
+      expenses.slice().reverse().forEach(exp => {
+        total += exp.amount;
+        categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+
+        const item = document.createElement('div');
+        item.className = 'expense-item';
+        item.innerHTML = `
+          <span>${exp.desc} <small style="color:var(--text-sub)">(${exp.category})</small></span>
+          <strong>Rp ${exp.amount.toLocaleString('id-ID')}</strong>
+        `;
+        list.appendChild(item);
+      });
+
+      // Meme reaction
+      const meme = document.getElementById('memeFeedback');
+      if (total === 0) meme.innerText = "✨ Dompet masih aman jaya.";
+      else if (total < 50000) meme.innerText = "😎 Mode hemat on point!";
+      else if (total < 150000) meme.innerText = "⚠️ Hati-hati, kopi kekinian mulai menggerogoti saldo.";
+      else meme.innerText = "💸 RIP Tabungan! Saatnya rem darurat pengeluaran!";
+
+      updateChart(categoryTotals);
+    }
+
+    // CHART.JS INTEGRATION
+    let chartInstance = null;
+    function updateChart(dataMap) {
+      const ctx = document.getElementById('expenseChart').getContext('2d');
+      const labels = Object.keys(dataMap);
+      const data = Object.values(dataMap);
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: ['#a855f7', '#06b6d4', '#f43f5e', '#10b981'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    // Init
+    renderExpenses();
+  </script>
+</body>
+</html>
